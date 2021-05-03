@@ -100,7 +100,7 @@ gst_aravis_get_all_camera_caps (GstAravis *gst_aravis, GError **error)
 {
 	GError *local_error = NULL;
 	GstCaps *caps;
-	gint64 *pixel_formats = NULL;
+	gint64 *pixel_formats;
 	double min_frame_rate, max_frame_rate;
 	int min_height, min_width;
 	int max_height, max_width;
@@ -257,7 +257,7 @@ gst_aravis_set_caps (GstBaseSrc *src, GstCaps *caps)
 		if (!error && gst_aravis->auto_packet_size)
 			arv_camera_gv_auto_packet_size (gst_aravis->camera, &error);
 	}
-
+/*
 	if (!error && frame_rate != NULL) {
 		double dbl_frame_rate;
 
@@ -276,7 +276,6 @@ gst_aravis_set_caps (GstBaseSrc *src, GstCaps *caps)
 		gst_aravis->buffer_timeout_us = GST_ARAVIS_BUFFER_TIMEOUT_DEFAULT;
 
 	GST_DEBUG_OBJECT (gst_aravis, "Buffer timeout = %" G_GUINT64_FORMAT " µs", gst_aravis->buffer_timeout_us);
-
 	if (is_frame_rate_available)
 		GST_DEBUG_OBJECT (gst_aravis, "Actual frame rate = %g Hz",
 				  arv_camera_get_frame_rate (gst_aravis->camera, NULL));
@@ -308,7 +307,7 @@ gst_aravis_set_caps (GstBaseSrc *src, GstCaps *caps)
 		}
 		GST_DEBUG_OBJECT (gst_aravis, "Actual exposure = %g µs", arv_camera_get_exposure_time (gst_aravis->camera, NULL));
 	}
-
+*/
 	orig_fixed_caps = g_steal_pointer (&gst_aravis->fixed_caps);
 
 	caps_string = arv_pixel_format_to_gst_caps_string (pixel_format);
@@ -333,12 +332,12 @@ gst_aravis_set_caps (GstBaseSrc *src, GstCaps *caps)
 		gst_aravis->fixed_caps = NULL;
 
 	if (!error) arv_device_set_features_from_string (arv_camera_get_device (gst_aravis->camera), gst_aravis->features, &error);
-
+	
 	if (!error) gst_aravis->payload = arv_camera_get_payload (gst_aravis->camera, &error);
 	if (!error) gst_aravis->stream = arv_camera_create_stream (gst_aravis->camera, NULL, NULL, &error);
 	if (error)
 		goto errored;
-
+	
 	if (ARV_IS_GV_STREAM (gst_aravis->stream)) {
 		if (gst_aravis->packet_resend)
 			g_object_set (gst_aravis->stream, "packet-resend", ARV_GV_STREAM_PACKET_RESEND_ALWAYS, NULL);
@@ -349,7 +348,7 @@ gst_aravis_set_caps (GstBaseSrc *src, GstCaps *caps)
 	for (i = 0; i < gst_aravis->num_arv_buffers; i++)
 		arv_stream_push_buffer (gst_aravis->stream,
 					arv_buffer_new (gst_aravis->payload, NULL));
-
+					
 	GST_LOG_OBJECT (gst_aravis, "Start acquisition");
 	arv_camera_start_acquisition (gst_aravis->camera, &error);
 
@@ -580,7 +579,7 @@ gst_aravis_fixate_caps (GstBaseSrc * bsrc, GstCaps * caps)
 	GstStructure *structure;
 	gint width;
 	gint height;
-	double frame_rate = 0.0;
+	double frame_rate;
 	gboolean is_frame_rate_available;
 
 	g_return_val_if_fail (GST_IS_ARAVIS (bsrc), NULL);
@@ -598,7 +597,8 @@ gst_aravis_fixate_caps (GstBaseSrc * bsrc, GstCaps * caps)
 			 error->message),
 			(NULL));
 		g_error_free (error);
-	} else {
+	}
+	else {
 		structure = gst_caps_get_structure (caps, 0);
 
 		gst_structure_fixate_field_nearest_int (structure, "width", width);

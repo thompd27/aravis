@@ -98,6 +98,8 @@ _use_legacy_endianness_mechanism (ArvGcPort *port, guint64 length)
 	ArvDomDocument *document;
 	ArvGcRegisterDescriptionNode *register_description;
 
+	return TRUE;
+	
 	document = arv_dom_node_get_owner_document (ARV_DOM_NODE (port));
 	register_description = ARV_GC_REGISTER_DESCRIPTION_NODE (arv_dom_document_get_document_element (document));
 
